@@ -1,10 +1,6 @@
 ---
 - name: Set up passwordless SSH for EC2 instances
   hosts: ec2_instances
-  vars:
-    ansible_ssh_private_key_file: /home/harish/Key1.pem
-    ansible_user: ubuntu
-    ansible_ssh_extra_args: "-o StrictHostKeyChecking=no"
   tasks:
     - name: Ensure the .ssh directory exists on the remote instance
       file:
@@ -21,12 +17,3 @@
         key: "{{ lookup('file', '/home/harish/.ssh/id_rsa.pub') }}"  # Use the local public key
         path: "/home/{{ ansible_user }}/.ssh/authorized_keys"
         mode: '0600'
-
-    - name: Verify passwordless SSH authentication
-      command: "ssh -i /home/harish/Key1.pem {{ ansible_user }}@{{ inventory_hostname }} echo 'SSH Success!'"
-      register: result
-      ignore_errors: yes
-
-    - name: Show SSH success message
-      debug:
-        msg: "{{ result.stdout }}"
