@@ -16,4 +16,3 @@
         state: present
         key: "{{ lookup('file', '/home/harish/.ssh/id_rsa.pub') }}"  # Use the local public key
         path: "/home/{{ ansible_user }}/.ssh/authorized_keys"
-        mode: '0600'
