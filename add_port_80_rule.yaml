@@ -1,16 +1,16 @@
 ---
 - name: add inbound rule for port 80 on ec2 security groups
   hosts: ec2_instances
-  gather_facts: false
+  gather_facts: true
   tasks:
     - name: Get the security group ID associate with ec2 ec2_instances
       ec2_metadata_facts:
       register: ec2_metadata
 
     - name: Add inbound rule for HTTP (port 80)
-      ec2_security_group:
+      amazon.aws.ec2_security_group:
         region: us-east-2
-        group_id: "{{ ec2_metadata.ansible_facts.ec2_security_group[0].group_id }}"
+        group_id: "{{ ec2_metadata.ansible_facts['ec2_security_groups'][0].group_id }}"
         rules:
           - proto: tcp
             ports: "80"
