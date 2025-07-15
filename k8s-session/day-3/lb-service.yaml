@@ -1,0 +1,37 @@
+# Deployment
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  labels:
+    type: webapp
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        type: webapp
+    spec:
+      containers:
+        - name: mywebapp
+          image: nginx
+  replicas: 2
+  selector:
+    matchLabels:
+      type: webapp
+
+---
+# Service
+
+apiVersion: v1 
+kind: Service
+metadata:
+  name: mysv-lb
+spec: 
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    type: webapp

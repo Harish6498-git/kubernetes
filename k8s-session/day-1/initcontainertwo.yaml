@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-pod
+spec:
+  containers:
+    - name: webapp
+      image: nginx
+  initContainers:
+    - name: test
+      image: busybox
+      command: ["nslookup", "www.google.com"]
+  
+      
