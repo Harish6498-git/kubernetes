@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+        - name: testapp
+          image: nginx
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "500Mi"
+            limits:
+              cpu: "1"
+              memory: "500Mi"
+
+# If cpu and memory resources are not equal to match criteria between requests and limits, pod will be "Burstable".
+# If the container tries to use more CPU than the limit → it’s throttled (not killed).
+# If it uses more memory than the limit → it's OOMKilled (Out of Memory).
+# If requests are more than limits, pod will be in failed validation state. Won't Schedule and started.

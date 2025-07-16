@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+        - name: testapp
+          image: nginx
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              cpu: 1
+              memory: "1Gi"
+
+# If youn't specify requests, it will be defaulted to limits.
+# If resources match node criteria, then po will be "Guaranteed".
+# If resources are not specified, pod will be "BestEffort".

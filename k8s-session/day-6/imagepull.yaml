@@ -1,0 +1,16 @@
+apiVersion: v1 
+kind: Pod 
+metedata:
+  name: imagepull-policy
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+      port:
+        - containerPort: 80
+      imagePullPolicy: Always//IfNotPresent/Never
+
+
+# Always:  Kubelet Always pulls the image from the registry — every time the pod starts.
+# IfNotPresent: Pulls image only if it’s not already present on the node.
+# Never: Kubelet never pulls the image, and only uses a local image. If image isn't present in node, pod will be in ImagePullBackOff state.
