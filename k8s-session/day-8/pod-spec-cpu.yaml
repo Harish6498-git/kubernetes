@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webapp
+  labels:
+    type: frontend
+spec:
+  containers:
+    - name: app
+      image: nginx
+      ports:
+        - containerPort: 80
+      resources:
+        requests:
+          cpu: 100m
+        limits:
+          cpu: 1
+    - name: tomapp
+      image: tomcat
+      ports:
+        - containerPort: 8080
+      resources:
+        requests:
+          cpu: 10m
+        limits:
+          cpu: 1

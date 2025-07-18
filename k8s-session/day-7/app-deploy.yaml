@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+  labels:
+    type: webapp
+  namespace: test 
+spec:
+  template:
+    metadata:
+      name: myapp-pod
+      labels:
+        type: webapp
+    spec:
+      containers:
+        - name: mywebapp
+          image: nginx
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "10m"
+  replicas: 1
+  selector:
+    matchLabels:
+      type: webapp
+
+
+
+# kubectl create deploy test --image=nginx --dry-run -o yaml 
+# kubectl create svc clusterip test --tcp=80:8080 --dry-run -o yaml
+# kubens is to switch namespace
+# kubectx is to switch cluster context
