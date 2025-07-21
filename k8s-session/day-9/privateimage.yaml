@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: student-app
+spec:
+  imagePullSecrets:
+    - name: dockerhubsecret
+  containers:
+    - name: student-app
+      image: dockerhubid/ubuntu-volume:v1.0  # replace with your dockerhub privte image
+      ports:
+        - containerPort: 8080
