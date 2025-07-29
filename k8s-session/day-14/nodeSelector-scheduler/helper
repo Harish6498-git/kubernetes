@@ -1,0 +1,3 @@
+kubectl get nodes --show-labels
+kubectl label nodes <your-node-name> type=web
+kubectl label nodes <your-node-name> type- (unlabel)

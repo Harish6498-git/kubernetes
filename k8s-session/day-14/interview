@@ -1,0 +1,86 @@
+“In one of our recent projects, we had a situation where a set of pods were healthy — both liveness and readiness probes were passing — but they were not receiving traffic. After investigation, we realized that the underlying Kubernetes node they were running on was not properly routing traffic, even though the node itself wasn’t marked NotReady.
+
+We reviewed the node logs and kube-proxy status, and suspected a networking issue. To quickly mitigate the impact, we applied a taint with NoExecute on that node, which caused Kubernetes to evict the pods and reschedule them onto healthy nodes. Once that happened, traffic was flowing again without issue.
+
+After resolving the incident, we implemented better node health monitoring and reviewed our scheduling strategy. We also started using pod anti-affinity rules for critical workloads to ensure they’re spread across different nodes, reducing risk during node-level issues.”**
+
+
+
+
+
+1. Q: How did you identify that the pods were not receiving traffic?
+
+A: We checked service metrics and application logs — there were no incoming requests. Using kubectl describe svc and kubectl get endpoints, we saw the endpoints pointing to those pods, but traffic wasn’t flowing, which led us to inspect the node.
+
+
+------
+
+2. Q: What does NoExecute do when tainting a node?
+
+A: NoExecute immediately evicts all pods that don’t tolerate the taint. It forces rescheduling of those pods on other nodes. It’s useful for isolating a node during issues.
+
+------
+
+4. Q: Why were the pods healthy but still not receiving traffic?
+
+A: Liveness and readiness probes test internal health, not networking. If kube-proxy or iptables on the node were misconfigured, traffic may not reach the pod even though it’s technically healthy.
+
+------
+
+
+5. Q: What could you have done differently to avoid this issue?
+
+A: We’ve since improved our node-level monitoring (e.g., node-exporter, kube-proxy alerts), and added anti-affinity rules for critical pods to ensure they’re distributed across multiple nodes.
+
+
+------------------------------------
+
+kubectl taint node ip-192-168-106-115.us-east-2.compute.internal type=web:NoSchedule
+kubectl taint node ip-192-168-106-115.us-east-2.compute.internal type=web:NoExecute --overwrite
+
+--------------------------------------
+
+🔹 NoSchedule
+What it does:
+Prevents new pods from being scheduled onto the node unless they explicitly tolerate the taint.
+
+Does it evict existing pods?
+❌ No — existing pods remain unaffected.
+
+Use case:
+Gradually control workload placement (e.g., reserve node for a special workload or new team).
+
+kubectl taint nodes node-1 environment=prod:NoSchedule
+
+Matching toleration in pod spec:
+
+yaml
+tolerations:
+  - key: "environment"
+    operator: "Equal"
+    value: "prod"
+    effect: "NoSchedule"
+
+----------------------------------------
+
+🔸 NoExecute
+What it does:
+Prevents new pods and also evicts existing pods from the node unless they tolerate the taint.
+
+Does it evict existing pods?
+✅ Yes — immediately or after tolerationSeconds.
+
+Use case:
+Forcefully remove all workloads from a node (e.g., node maintenance, failure, dedicated hardware, or to isolate workloads).
+
+kubectl taint nodes node-1 environment=prod:NoExecute
+
+Matching toleration in pod spec:
+
+yaml
+tolerations:
+  - key: "environment"
+    operator: "Equal"
+    value: "prod"
+    effect: "NoExecute"
+
