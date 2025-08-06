@@ -1,0 +1,10 @@
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
+
+kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
+
+to block specific ip's:
+ annotations:
+    nginx.ingress.kubernetes.io/server-snippet: |
+      deny 203.0.113.1;
+      deny 198.51.100.0/24;
+      allow all;

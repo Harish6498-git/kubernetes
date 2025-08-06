@@ -8,9 +8,9 @@ metadata:
 
 nodeGroups:
   - name: ng-1
-    instanceType: t3.medium
+    instanceType: c7i-flex.large
     desiredCapacity: 3
     volumeSize: 30
     privateNetworking: true
     ssh:
-      publicKeyName: project
+      publicKeyName: Kubernetes
