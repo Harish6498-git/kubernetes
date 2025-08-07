@@ -8,3 +8,7 @@ to block specific ip's:
       deny 203.0.113.1;
       deny 198.51.100.0/24;
       allow all;
+
+
+
+https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.13.0/deploy/static/provider/aws/nlb-with-tls-termination/deploy.yaml
