@@ -1,0 +1,124 @@
+---
+# multi-arch platform For Docker (arm/64,amd/64)
+
+docker builder ls
+
+docker buildx build --platform linux/arm64,linux/amd64 -t harish0604/swiggy:v1 .
+
+docker buildx build --platform linux/arm64,linux/amd64 --push -t harish0604/swiggy:v1 .
+
+---
+# k8s nodes notscheduling/disabled/uncordon
+
+kubectl get nod 
+harish@Ashish:~/kubernetes/k8s-session/day-17/rate-limiting$ kubectl get no
+NAME                                            STATUS                     ROLES    AGE   VERSION
+ip-192-168-111-114.us-east-2.compute.internal   Ready,SchedulingDisabled   <none>   25h   v1.33.3-eks-3abbec1
+ip-192-168-137-97.us-east-2.compute.internal    Ready,SchedulingDisabled   <none>   25h   v1.33.3-eks-3abbec1
+ip-192-168-167-206.us-east-2.compute.internal   Ready,SchedulingDisabled   <none>   25h   v1.33.3-eks-3abbec1
+
+harish@Ashish:~/kubernetes/k8s-session/day-17/rate-limiting$ kubectl describe no ip-192-168-111-114.us-east-2.compute.internal
+Name:               ip-192-168-111-114.us-east-2.compute.internal
+Roles:              <none>
+Labels:             alpha.eksctl.io/cluster-name=dev
+                    alpha.eksctl.io/nodegroup-name=ng-1
+                    beta.kubernetes.io/arch=amd64
+                    beta.kubernetes.io/instance-type=c7i-flex.large
+                    beta.kubernetes.io/os=linux
+                    failure-domain.beta.kubernetes.io/region=us-east-2
+                    failure-domain.beta.kubernetes.io/zone=us-east-2b
+                    k8s.io/cloud-provider-aws=8affbcd681acbc3a1e78a646fe4e31dd
+                    kubernetes.io/arch=amd64
+                    kubernetes.io/hostname=ip-192-168-111-114.us-east-2.compute.internal
+                    kubernetes.io/os=linux
+                    node.kubernetes.io/instance-type=c7i-flex.large
+                    topology.k8s.aws/zone-id=use2-az2
+                    topology.kubernetes.io/region=us-east-2
+                    topology.kubernetes.io/zone=us-east-2b
+Annotations:        alpha.kubernetes.io/provided-node-ip: 192.168.111.114
+                    node.alpha.kubernetes.io/ttl: 0
+                    volumes.kubernetes.io/controller-managed-attach-detach: true
+CreationTimestamp:  Thu, 07 Aug 2025 23:12:57 +0530
+Taints:             node.kubernetes.io/unschedulable:NoSchedule
+Unschedulable:      true
+Lease:
+  HolderIdentity:  ip-192-168-111-114.us-east-2.compute.internal
+  AcquireTime:     <unset>
+  RenewTime:       Sat, 09 Aug 2025 00:21:10 +0530
+Conditions:
+  Type             Status  LastHeartbeatTime                 LastTransitionTime                Reason                       Message
+  ----             ------  -----------------                 ------------------                ------                       -------
+  MemoryPressure   False   Sat, 09 Aug 2025 00:19:23 +0530   Thu, 07 Aug 2025 23:12:55 +0530   KubeletHasSufficientMemory   kubelet has sufficient memory available
+  DiskPressure     False   Sat, 09 Aug 2025 00:19:23 +0530   Thu, 07 Aug 2025 23:12:55 +0530   KubeletHasNoDiskPressure     kubelet has no disk pressure
+  PIDPressure      False   Sat, 09 Aug 2025 00:19:23 +0530   Thu, 07 Aug 2025 23:12:55 +0530   KubeletHasSufficientPID      kubelet has sufficient PID available
+  Ready            True    Sat, 09 Aug 2025 00:19:23 +0530   Thu, 07 Aug 2025 23:13:07 +0530   KubeletReady                 kubelet is posting ready status
+Addresses:
+  InternalIP:   192.168.111.114
+  InternalDNS:  ip-192-168-111-114.us-east-2.compute.internal
+  Hostname:     ip-192-168-111-114.us-east-2.compute.internal
+Capacity:
+  cpu:                2
+  ephemeral-storage:  31379436Ki
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             3908164Ki
+  pods:               29
+Allocatable:
+  cpu:                1930m
+  ephemeral-storage:  27845546346
+  hugepages-1Gi:      0
+  hugepages-2Mi:      0
+  memory:             3217988Ki
+  pods:               29
+System Info:
+  Machine ID:                 ec2cdc5d3ca18c9974d5ecb174041b69
+  System UUID:                ec2cdc5d-3ca1-8c99-74d5-ecb174041b69
+  Boot ID:                    7159d2fd-e86c-4169-ae52-c70fb5b48a82
+  Kernel Version:             6.12.37-61.105.amzn2023.x86_64
+  OS Image:                   Amazon Linux 2023.8.20250721
+  Operating System:           linux
+  Architecture:               amd64
+  Container Runtime Version:  containerd://1.7.27
+  Kubelet Version:            v1.33.3-eks-3abbec1
+  Kube-Proxy Version:
+ProviderID:                   aws:///us-east-2b/i-09a4c8e6163c11ede
+Non-terminated Pods:          (2 in total)
+  Namespace                   Name                CPU Requests  CPU Limits  Memory Requests  Memory Limits  Age
+  ---------                   ----                ------------  ----------  ---------------  -------------  ---
+  kube-system                 aws-node-r5l27      50m (2%)      0 (0%)      0 (0%)           0 (0%)         25h
+  kube-system                 kube-proxy-7dxpx    100m (5%)     0 (0%)      0 (0%)           0 (0%)         25h
+
+---
+node.kubernetes.io/unschedulable:NoSchedule
+kubectl taint nodes ip-192-168-111-114.us-east-2.compute.internal node.kubernetes.io/unschedulable:NoSchedule-
+
+---
+for n in \
+  ip-192-168-111-114.us-east-2.compute.internal \
+  ip-192-168-137-97.us-east-2.compute.internal \
+  ip-192-168-167-206.us-east-2.compute.internal
+do
+  kubectl uncordon "$n"
+  kubectl taint nodes "$n" node.kubernetes.io/unschedulable:NoSchedule- || true
+done
+
+---
+kubectl get nodes
+kubectl get node ip-192-168-111-114.us-east-2.compute.internal -o jsonpath='{.spec.taints}'; echo
+kubectl get node ip-192-168-137-97.us-east-2.compute.internal -o jsonpath='{.spec.taints}'; echo
+kubectl get node ip-192-168-167-206.us-east-2.compute.internal -o jsonpath='{.spec.taints}'; echo
+
+---
+kubectl get no 
+harish@Ashish:~/kubernetes/k8s-session/day-17/rate-limiting$ kubectl get no
+NAME                                            STATUS   ROLES    AGE   VERSION
+ip-192-168-111-114.us-east-2.compute.internal   Ready    <none>   25h   v1.33.3-eks-3abbec1
+ip-192-168-137-97.us-east-2.compute.internal    Ready    <none>   25h   v1.33.3-eks-3abbec1
+ip-192-168-167-206.us-east-2.compute.internal   Ready    <none>   25h   v1.33.3-eks-3abbec1
+
+---
+Situation: “During a rollout, several pods were stuck in Pending on our EKS cluster.”
+Task: “I needed to quickly restore scheduling without disrupting running workloads.”
+Action: “I checked node status with kubectl get nodes and saw SchedulingDisabled. kubectl describe node confirmed the nodes were cordoned and had the node.kubernetes.io/unschedulable:NoSchedule taint. I ran kubectl uncordon <node> and removed the taint with kubectl taint nodes <node> node.kubernetes.io/unschedulable:NoSchedule- across the node group, then validated with kubectl get nodes and confirmed no taints via jsonpath.”
+Result: “Pods rescheduled from Pending to Running within minutes, no downtime, and we avoided unnecessary node restarts.”
+
