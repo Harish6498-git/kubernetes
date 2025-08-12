@@ -1,0 +1,40 @@
+# prometheus Ingress (namespace: prometheus)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus-ingress
+  namespace: prometheus
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: prometheus.harishpro.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                # Service name from the Helm chart NOTES
+                name: prometheus-server
+                port:
+                  number: 80
+---
+# grafana Ingress (namespace: grafana)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: grafana
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: grafana.harishpro.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 80
