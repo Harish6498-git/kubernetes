@@ -1,16 +1,25 @@
 Step - 1 : Create a namespace.
 kubectl create namespace prometheus
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
 
 Step - 2 : Install prometheus to K8S cluster.
-helm install prometheus prometheus-community/prometheus \
---namespace prometheus \
---set alertmanager.persistentVolume.storageClass="monitor-ebs-storage" 
+helm upgrade --install prometheus prometheus-community/prometheus \
+  -n prometheus \
+  --set server.persistentVolume.enabled=true \
+  --set server.persistentVolume.storageClass=monitor-ebs-storage \
+  --set alertmanager.persistentVolume.enabled=true \
+  --set alertmanager.persistentVolume.storageClass=monitor-ebs-storage
+
 
 Step - 3 : Port forward to the prometheus server.
 kubectl port-forward svc/prometheus-server 9090:80 -n prometheus
 
 Step - 4 : Create a namespace.
 kubectl create namespace grafana
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
 
 Step - 5 : Install grafana to K8S cluster.
 helm install grafana grafana/grafana \
@@ -71,15 +80,15 @@ For slack web hook visit api.slack.com > your apps > Incoming Webhooks
 First Block:
 This block defines where to send the notifications.
     receivers:
-    - name: default-receiver
-    - name: slack
-      slack_configs:
-      - channel: "#alerting"
-        text: |
-          {{ .CommonAnnotations.summary }}
-          {{ .CommonAnnotations.description }}
-        send_resolved: true
-        api_url: 'https://hooks.slack.com/services/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'
+      - name: default-receiver
+      - name: slack
+        slack_configs:
+          - channel: "#channel-1"
+            text: |
+              {{ .CommonAnnotations.summary }}
+              {{ .CommonAnnotations.description }}
+            send_resolved: true
+            api_url: 'https://hooks.slack.com/services/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'
 
 Second Block:
 This block defines in which case where to send notifications. For example for below case if team, severity matches with devops, critical then it will send the notification to slack receiver which we added in above configuration if not to default receiver which is empty.
@@ -89,11 +98,11 @@ This block defines in which case where to send notifications. For example for be
       receiver: default-receiver
       repeat_interval: 3h
       routes:
-      - matchers:
-        - team=~"devops"
-        - severity="critical"
-        receiver: slack
-        continue: true
+        - matchers:
+            - team=~"devops"
+            - severity="critical"
+          receiver: slack
+          continue: true
 
 Reload the alert manager after updating the configmap of alertmanager with below curl. Update the port based on service port mapping port.
 curl -X POST http://localhost:9095/-/reload
@@ -157,3 +166,6 @@ helm uninstall prometheus -n prometheus
 helm list -A | grep -i grafana
 
 helm uninstall grafana -n grafana
+
+
+https://hooks.slack.com/services/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
