@@ -11,6 +11,7 @@ kill -9 <process_id>
 kubectl get all --all-namespaces -o yaml > all-apps.yaml
 
 http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+https://localhost:8001
 
 https://localhost:8787/#/node?namespace=default
 
